@@ -1,0 +1,16 @@
+/target
+/RPMS
+/installroot
+/rpmbuildroot
+/.cargo*
+*~
+
+*.list
+
+# Qt Creator
+*.autosave
+*.user
+
+# IDEA
+/.idea
+*.iml
