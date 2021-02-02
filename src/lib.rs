@@ -45,6 +45,8 @@ impl DesktopEntryIndex {
                 .localized_get(StandardKey::Exec.key_name(), &None)?
                 .to_string(),
             file_name: path
+                .file_name()
+                .unwrap_or_default()
                 .to_str()
                 .map(|path| path.to_string())
                 .unwrap_or_default(),

@@ -10,12 +10,12 @@ edition = "2018"
 
 [dependencies]
 xdg-desktop-entry = { git = "https://github.com/R1tschY/xdg-desktop-entry-rs.git", rev = "726e1542" }
-qt5qml = { git = "https://github.com/R1tschY/qobject-rs.git", rev = "4a449df8" }
+qt5qml = { git = "https://github.com/R1tschY/qobject-rs.git", rev = "063ea5a8" }
 sailfishapp = { path = "sailfishapp" }
 env_logger = "^0.8"
 log = "^0.4"
 
 [build-dependencies]
-qobject-compiler = { git = "https://github.com/R1tschY/qobject-rs.git", rev = "4a449df8"}
-qt5qml = { git = "https://github.com/R1tschY/qobject-rs.git", rev = "4a449df8"}
+qobject-compiler = { git = "https://github.com/R1tschY/qobject-rs.git", rev = "063ea5a8"}
+qt5qml = { git = "https://github.com/R1tschY/qobject-rs.git", rev = "063ea5a8"}
 pkg-config = "0.3"

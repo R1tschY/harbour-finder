@@ -1,8 +1,9 @@
 use qobject_compiler::moc::MocConfig;
 use qobject_compiler::{
     CcBuild, Include, QObjectBuild, QObjectMethod, QObjectProp, QObjectSignal, TypeRef,
+    TypeRefTrait,
 };
-use qt5qml::core::{QHashIntQByteArray, QModelIndex, QString, QVariant};
+use qt5qml::core::{QHashIntQByteArray, QModelIndex, QObject, QString, QVariant};
 
 fn main() {
     // Qt
@@ -27,6 +28,13 @@ fn main() {
         false,
         Some(Include::System("QAbstractListModel".to_string())),
     );
+    let string_list = TypeRef::new(
+        "QStringList",
+        "qt5qml::core::QStringList",
+        false,
+        Some(Include::System("QStringList".to_string())),
+    );
+
     QObjectBuild::new("ResultListModel")
         .inherit(abstract_list_model)
         .property(
@@ -77,6 +85,40 @@ fn main() {
                 .arg::<i32>("last"),
         )
         .method(QObjectMethod::new("endInsertRows").proxy("QAbstractListModel"))
+        .qml(true)
+        .build(&cpp, &moc);
+
+    QObjectBuild::new("Process")
+        .inherit(QObject::type_ref())
+        .property(
+            QObjectProp::new::<QString>("program")
+                .read("program")
+                .write("setProgram")
+                .notify("programChanged"),
+        )
+        .method(QObjectMethod::new("program").ret::<QString>())
+        .method(QObjectMethod::new("setProgram").arg::<&QString>("value"))
+        .signal(QObjectSignal::new("programChanged"))
+        .property(
+            QObjectProp::new_with_type(string_list.clone(), "arguments")
+                .read("arguments")
+                .write("setArguments")
+                .notify("argumentsChanged"),
+        )
+        .method(QObjectMethod::new("arguments").ret_type(string_list.clone()))
+        .method(
+            QObjectMethod::new("setArguments").arg_with_type("value", string_list.with_const_ref()),
+        )
+        .signal(QObjectSignal::new("argumentsChanged"))
+        .property(
+            QObjectProp::new::<bool>("running")
+                .read("running")
+                .notify("runningChanged"),
+        )
+        .method(QObjectMethod::new("running").ret::<bool>())
+        .signal(QObjectSignal::new("runningChanged"))
+        .slot(QObjectMethod::new("start"))
+        .slot(QObjectMethod::new("_poll"))
         .qml(true)
         .build(&cpp, &moc);
 }
