@@ -53,8 +53,8 @@ impl DesktopEntryIndex {
         }))
     }
 
-    pub fn get_all(&self) -> &[Rc<Entry>] {
-        &self.entries
+    pub fn get_all(&self) -> Vec<Rc<Entry>> {
+        self.entries.iter().cloned().collect()
     }
 
     pub fn search_for(&self, query: &str) -> Vec<Rc<Entry>> {

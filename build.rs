@@ -85,6 +85,8 @@ fn main() {
                 .arg::<i32>("last"),
         )
         .method(QObjectMethod::new("endInsertRows").proxy("QAbstractListModel"))
+        .method(QObjectMethod::new("beginResetModel").proxy("QAbstractListModel"))
+        .method(QObjectMethod::new("endResetModel").proxy("QAbstractListModel"))
         .qml(true)
         .build(&cpp, &moc);
 

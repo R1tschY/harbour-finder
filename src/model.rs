@@ -16,7 +16,7 @@ const FILENAME_ROLE: i32 = QT_USER_ROLE + 3;
 
 pub struct ResultListModelPrivate {
     qobject: *mut ResultListModel,
-    query: Option<String>,
+    query: String,
     result_set: Vec<Rc<Entry>>,
     index: DesktopEntryIndex,
 }
@@ -27,8 +27,8 @@ impl ResultListModelPrivate {
         index.index();
         Self {
             qobject,
-            query: None,
-            result_set: index.get_all().iter().cloned().collect(),
+            query: String::new(),
+            result_set: index.get_all(),
             index,
         }
     }
@@ -46,12 +46,27 @@ impl ResultListModelPrivate {
     }
 
     pub fn set_query(&mut self, value: &QString) {
-        self.query = Some(value.to_string());
-        self.q_mut().query_changed(value);
+        let query = value.to_string();
+        if self.query != query {
+            info!("Query: {}", query);
+            self.query = query;
+            self.q_mut().query_changed(value);
+            self.update();
+        }
     }
 
-    // #[slot]
-    pub fn search(&mut self, query: &QString) {}
+    fn update(&mut self) {
+        self.q_mut().begin_reset_model();
+
+        let result_set = if self.query.is_empty() {
+            self.index.get_all()
+        } else {
+            self.index.search_for(&self.query)
+        };
+
+        self.result_set = result_set;
+        self.q_mut().end_reset_model();
+    }
 
     // #[slot]
     pub fn index(&mut self) {}
@@ -72,10 +87,11 @@ impl ResultListModelPrivate {
             return Default::default();
         }
 
-        let row = index.row() as usize;
-        if row < 0 && row > self.result_set.len() {
+        let row = index.row();
+        if row < 0 || row as usize > self.result_set.len() {
             return Default::default();
         }
+        let row = row as usize;
 
         match role {
             NAME_ROLE => (&self.result_set[row].name as &str).into(),
@@ -96,5 +112,5 @@ impl ResultListModelPrivate {
     }
 
     // #[provide]
-    fn model_changed(&mut self) {}
+    // fn model_changed(&mut self) {}
 }

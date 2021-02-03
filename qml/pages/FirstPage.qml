@@ -15,10 +15,38 @@ Page {
             width: page.width
             implicitHeight: Theme.itemSizeMedium
 
+            Image {
+                id: appIcon
+                source: patchIcon(icon)
+                width: 172
+                height: 172
+            }
+
             Label {
-                text: index
+                id: appNameLabel
+                anchors {
+                    left: appIcon.right
+                    leftMargin: Theme.paddingMedium
+                }
+
+                text: name
+
+            }
+
+            onClicked: {
+                if (fileName) {
+                    console.log(fileName)
+                    lca_tool.open(fileName)
+                } else {
+                    console.error("no valid file name for desktop file")
+                }
             }
         }
+    }
+
+    Component.onCompleted: {
+        console.log(Theme.iconSizeSmall, Theme.iconSizeMedium, Theme.iconSizeLarge)
+        console.log(Theme.itemSizeExtraSmall, Theme.itemSizeSmall, Theme.itemSizeMedium, Theme.itemSizeLarge, Theme.itemSizeExtraLarge)
     }
 
     Process {
@@ -50,9 +78,51 @@ Page {
         return "image://theme/" + icon
     }
 
-    // To enable PullDownMenu, place our content in a SilicaFlickable
-    SilicaListView {
+    SilicaFlickable {
         anchors.fill: parent
+        width: page.width
+
+        SearchField {
+            id: searchField
+            width: page.width
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: parent.top
+            placeholderText: qsTr("Search")
+            autoScrollEnabled: false
+            inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhNoAutoUppercase
+            focus: true
+
+            onTextChanged: {
+                resultModel.query = searchField.text
+                searchField.focus = true
+                console.log(searchField.text)
+            }
+        }
+
+        SilicaListView {
+            id: listView
+
+            width: page.width
+            anchors {
+                top: searchField.bottom
+                bottom: parent.bottom
+            }
+            clip: true
+
+            model: ResultListModel {
+                id: resultModel
+                //query: searchFieldId.text
+
+                onRowsAboutToBeRemoved: console.log("onRowsAboutToBeRemoved", first, last)
+                onRowsAboutToBeInserted: console.log("onRowsAboutToBeInserted", start, end)
+                onModelReset: console.log("onModelReset", listView.count)
+            }
+
+            delegate: resultDelegate
+
+            onCountChanged: console.log("count", count)
+        }
 
         // PullDownMenu and PushUpMenu must be declared in SilicaFlickable, SilicaListView or SilicaGridView
         PullDownMenu {
@@ -61,47 +131,5 @@ Page {
                 onClicked: pageStack.push(Qt.resolvedUrl("SecondPage.qml"))
             }
         }
-
-        header: PageHeader {
-            title: qsTr("Finder")
-        }
-
-        model: ResultListModel {
-            id: resultModel
-        }
-
-        delegate: BackgroundItem {
-            width: page.width
-            implicitHeight: Theme.itemSizeMedium
-
-            Image {
-                id: appIcon
-                source: patchIcon(icon)
-                width: Theme.itemSizeMedium
-                height: Theme.itemSizeMedium
-            }
-
-            Label {
-                id: appNameLabel
-                anchors {
-                    left: appIcon.right
-                    leftMargin: Theme.paddingMedium
-                }
-
-                text: name
-
-            }
-
-            onClicked: {
-                if (fileName) {
-                    console.log(fileName)
-                    lca_tool.open(fileName)
-                } else {
-                    console.error("no valid file name for desktop file")
-                }
-            }
-        }
-
-        onCountChanged: console.log("count", count)
     }
 }
