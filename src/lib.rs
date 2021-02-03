@@ -3,10 +3,12 @@ use std::path::PathBuf;
 use std::rc::Rc;
 
 use log::info;
+use std::fs::read;
 use xdg_desktop_entry::{discover_applications, DesktopEntry, StandardKey};
 
 pub struct Entry {
     pub name: String,
+    pub description: Option<String>,
     pub icon: Option<String>,
     pub exec: String,
     pub file_name: String,
@@ -34,12 +36,26 @@ impl DesktopEntryIndex {
         info!("Reading {:?} ...", &path);
         let content = fs::read_to_string(&path).ok()?;
         let desktop_entry = DesktopEntry::parse_string(&content).ok()?;
+
+        let no_display = desktop_entry.get(StandardKey::NoDisplay.key_name());
+        if no_display == Some("true") {
+            return None;
+        }
+
+        let hidden = desktop_entry.get(StandardKey::Hidden.key_name());
+        if hidden == Some("true") {
+            return None;
+        }
+
         Some(Rc::new(Entry {
             name: desktop_entry
                 .localized_get(StandardKey::Name.key_name(), &None)?
                 .to_string(),
             icon: desktop_entry
                 .localized_get(StandardKey::Icon.key_name(), &None)
+                .map(|icon| icon.to_string()),
+            description: desktop_entry
+                .localized_get(StandardKey::Comment.key_name(), &None)
                 .map(|icon| icon.to_string()),
             exec: desktop_entry
                 .localized_get(StandardKey::Exec.key_name(), &None)?

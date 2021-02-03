@@ -29,14 +29,30 @@ Page {
                     leftMargin: Theme.paddingMedium
                 }
 
-                text: name
+                font.pixelSize: Theme.fontSizeLarge
 
+                text: name
+            }
+
+            Label {
+                id: appDescriptionLabel
+                anchors {
+                    left: appIcon.right
+                    leftMargin: Theme.paddingMedium
+                    top: appNameLabel.bottom
+                    topMargin: Theme.paddingSmall
+                }
+
+                text: description
+                color: Theme.secondaryColor
+                font.pixelSize: Theme.fontSizeSmall
             }
 
             onClicked: {
                 if (fileName) {
                     console.log(fileName)
                     lca_tool.open(fileName)
+                    Qt.quit()
                 } else {
                     console.error("no valid file name for desktop file")
                 }

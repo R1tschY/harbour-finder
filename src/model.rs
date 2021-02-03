@@ -10,9 +10,10 @@ use harbour_finder::{DesktopEntryIndex, Entry};
 include!(concat!(env!("OUT_DIR"), "/qffi_ResultListModel.rs"));
 
 const NAME_ROLE: i32 = QT_USER_ROLE + 0;
-const ICON_ROLE: i32 = QT_USER_ROLE + 1;
-const EXEC_ROLE: i32 = QT_USER_ROLE + 2;
-const FILENAME_ROLE: i32 = QT_USER_ROLE + 3;
+const DESCRIPTION_ROLE: i32 = QT_USER_ROLE + 1;
+const ICON_ROLE: i32 = QT_USER_ROLE + 2;
+const EXEC_ROLE: i32 = QT_USER_ROLE + 3;
+const FILENAME_ROLE: i32 = QT_USER_ROLE + 4;
 
 pub struct ResultListModelPrivate {
     qobject: *mut ResultListModel,
@@ -75,6 +76,7 @@ impl ResultListModelPrivate {
     pub fn role_names(&self) -> QHashIntQByteArray {
         let mut roles = QHashIntQByteArray::new();
         roles.insert(NAME_ROLE, QByteArray::from_bytes(b"name"));
+        roles.insert(DESCRIPTION_ROLE, QByteArray::from_bytes(b"description"));
         roles.insert(ICON_ROLE, QByteArray::from_bytes(b"icon"));
         roles.insert(EXEC_ROLE, QByteArray::from_bytes(b"exec"));
         roles.insert(FILENAME_ROLE, QByteArray::from_bytes(b"fileName"));
@@ -95,6 +97,11 @@ impl ResultListModelPrivate {
 
         match role {
             NAME_ROLE => (&self.result_set[row].name as &str).into(),
+            DESCRIPTION_ROLE => self.result_set[row]
+                .description
+                .as_ref()
+                .map(|s| s as &str)
+                .into(),
             ICON_ROLE => self.result_set[row].icon.as_ref().map(|s| s as &str).into(),
             EXEC_ROLE => (&self.result_set[row].exec as &str).into(),
             FILENAME_ROLE => (&self.result_set[row].file_name as &str).into(),
