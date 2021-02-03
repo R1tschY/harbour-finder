@@ -1,0 +1,31 @@
+name: RPM build
+
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  build-armv7hl:
+    runs-on: ubuntu-latest
+    name: Build armv7hl
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build armv7hl RPMS
+      uses: R1tschY/sailfish-sdk-action@v1
+      with:
+        arch: 'armv7hl'
+        release: '3.3.0.16'
+        fix-version: false
+        enable-debug: true
+        check: true
+
+    - name: Upload RPMS
+      uses: actions/upload-artifact@v2
+      with:
+        name: harbour-finder-armv7hl
+        path: RPMS
