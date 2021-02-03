@@ -30,14 +30,14 @@ export RPM_VERSION=%{version}
 
 if [ "$SAILFISH_SDK_FRONTEND" == "qtcreator" ] ; then
     # debug
-    export RUSTFLAGS="-Clink-arg=-Wl,-z,relro,-z,now"
+    export RUSTFLAGS="-Clink-arg=-Wl,-z,relro,-z,now -Clink-arg=-rdynamic"
 
     cargo build --target-dir=target --manifest-path %{_sourcedir}/../Cargo.toml
     touch Makefile
 else
     # release
     export CARGO_INCREMENTAL=0
-    export RUSTFLAGS="-Clink-arg=-Wl,-z,relro,-z,now -Ccodegen-units=1"
+    export RUSTFLAGS="-Clink-arg=-Wl,-z,relro,-z,now -Ccodegen-units=1 -Clink-arg=-rdynamic"
 
     cargo build --release --target-dir=target --locked --manifest-path %{_sourcedir}/../Cargo.toml
 fi
